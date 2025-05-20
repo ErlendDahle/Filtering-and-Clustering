@@ -217,16 +217,28 @@ def remove_false_seabottom(data: xr.DataArray, mask_data, cluster_ranges ) -> xr
 
     return data
 
-# def compare_bathymetry_and_sonar( data: xr.Dataset, Bathymetry,cutoff,error_threshold=23):
-#     # for i in range(first_non_nan_values.shape[1]):
-#     #     # if first_non_nan_values[0, i] != np.nan and first_non_nan_values[0, i] != np.nan and first_non_nan_values[0, i] != np.nan:
-#     #     #     if (first_non_nan_values[0, i] == first_non_nan_values[1, i] == first_non_nan_values[2, i]): #check if all sonar values are similar for each channel
-#     #     #         print(f"Difference found at index {i}: {first_non_nan_values[:, i]}")
 
-#     #     if first_non_nan_values[0, i] != np.nan and first_non_nan_values[0, i] != np.nan and first_non_nan_values[0, i] != np.nan:
-#     #         if (abs(first_non_nan_values[0, i]-Bathymetry[i])>error_threshold) or (abs(first_non_nan_values[1, i]-Bathymetry[i])>error_threshold) or (abs(first_non_nan_values[2, i]-Bathymetry[i])>error_threshold):
-#     #             print(f"Sonar at index {i}: {first_non_nan_values[:, i]}")
-#     #             print(f"Bathymetry at index {i}: {Bathymetry[i]}")
-#     #             print(f"Error: {abs(first_non_nan_values[0, i]-Bathymetry[i])}")
-#     first_non_nan_values = np.full((3,data.dims['ping_time']), np.nan)
-#     return first_non_nan_values
+def remove_false_bottom(data: xr.DataArray, mask_data, cluster_ranges, iterations) -> xr.DataArray:
+
+    mask = ~np.isnan(mask_data)
+
+    for i in range(len(cluster_ranges)):
+        mask[cluster_ranges[i][0], :, :(cluster_ranges[i][1])] = False
+        mask[cluster_ranges[i][0], :, (cluster_ranges[i][2]):] = False
+
+    if (cluster_ranges[:,0]==0).any()==False:
+        mask[0, :, :] = False
+    if (cluster_ranges[:,0]==1).any()==False:
+        mask[1, :, :] = False       
+    if (cluster_ranges[:,0]==2).any()==False:
+        mask[2, :, :] = False   
+
+
+    dilated_mask = binary_dilation(mask, iterations)
+
+    data[0,:,:]= xr.where(dilated_mask[0,:,:], np.nan, data[0,:,:])
+    data[1,:,:]= xr.where(dilated_mask[1,:,:], np.nan, data[1,:,:])
+    data[2,:,:]= xr.where(dilated_mask[2,:,:], np.nan, data[2,:,:])
+    
+    return data
+

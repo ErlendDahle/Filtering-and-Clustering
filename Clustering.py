@@ -5,6 +5,18 @@ from sklearn.cluster import DBSCAN
 
 
 def clustering(data: xr.Dataset,min_range,max_range) -> xr.Dataset:
+    """
+    Perform clustering on the data using DBSCAN.
+
+    Parameters:
+        data (xr.Dataset): The input dataset containing Sv data.
+        min_range (int): The minimum range index to consider.
+        max_range (int): The maximum range index to consider.
+    Returns:
+        data (xr.Dataset): The modified dataset.
+        ping_range_sv_array_clean (np.ndarray): The cleaned array of ping, range, and Sv values.
+        labels (np.ndarray): The cluster labels assigned to the data points.    
+    """
 
     channels, pings, ranges = data["Sv"].shape
 
@@ -25,14 +37,10 @@ def clustering(data: xr.Dataset,min_range,max_range) -> xr.Dataset:
 
     data= data.isel(range=slice(min_range, None))
 
-    #sv_data = echo_data_sv["Sv"].values[:, :, :cutoff]  
     channels, pings, ranges = data["Sv"].shape
 
     ping_indices = np.arange(0, pings)
     range_indices = np.arange(0, ranges)
-
-    # ping_time_values = np.repeat(echo_data_sv["ping_time"].values, ranges)
-    # range_values = np.tile(echo_data_sv["range"].values, pings)
 
     ping_time_values = np.repeat(ping_indices, ranges)
     range_values = np.tile(range_indices, pings)
@@ -54,7 +62,7 @@ def clustering(data: xr.Dataset,min_range,max_range) -> xr.Dataset:
 
 
     db = DBSCAN(eps=40, min_samples=2000).fit(ping_range_sv_array_clean[:,:])
-    # # hdb = HDBSCAN(min_cluster_size=400).fit(ping_range_sv_array_clean) #400
+
 
     labels = db.labels_
 

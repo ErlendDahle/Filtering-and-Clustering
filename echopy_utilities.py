@@ -39,37 +39,6 @@ def find_edge(data: xr.DataArray,
 
 
 
-# def find_bottom(cutoff, data: xr.DataArray, dim: str = "range") -> xr.DataArray:
-
-#     """
-#     Finds the edge of the populated domain of the data along a specified dimension.
-
-#     Parameters:
-#         data (xr.DataArray): The input DataArray.
-#         dim (str): The dimension along which to find the edge. Defaults to "range".
-
-#     Returns:
-#         xr.Dataset: The modified data with indices set to Nan if under bottom.
-#     """
-
-#     Minimum_strength_1 = -20
-#     Minimum_strength_2 = -30
-
-#     i, j, start = 0, 0, 0
-#     for i in range(300,cutoff-500):
-#         if data.isel({dim: i}).max() > Minimum_strength_1: 
-#             start = i
-#             break
-#     #data.sizes.get("ping_time",0)
-#     for j in range(data.sizes.get("ping_time",0)):# ping time
-#         for i in range(start, cutoff-500): # range
-#             if int(data.isel({dim: i})[{"ping_time": j}].sum()) > Minimum_strength_2:
-#                 data[{dim: slice(i+5, cutoff), "ping_time": j}] = np.nan
-                
-
-
-    
-#     return data
 
 
 # Utility that creates the range dimension from the range_sample dimension calibrated to meters

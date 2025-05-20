@@ -4,7 +4,6 @@ from sklearn.metrics import mean_squared_error
 
 
 def moving_average(data, window_size):
-
     """
     Smooths the data using a moving average filter.
     """
