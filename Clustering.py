@@ -53,12 +53,9 @@ def clustering(data: xr.Dataset,min_range,max_range) -> xr.Dataset:
     ping_range_sv_array_clean = ping_range_array[valid_rows]
 
 
-
-
     db = DBSCAN(eps=40, min_samples=2000).fit(ping_range_sv_array_clean[:,:])
     # # hdb = HDBSCAN(min_cluster_size=400).fit(ping_range_sv_array_clean) #400
 
-
     labels = db.labels_
 
-    return data, labels
+    return data,ping_range_sv_array_clean, labels

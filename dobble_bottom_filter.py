@@ -6,10 +6,10 @@ import filter_utilities as fu
 from scipy.ndimage import binary_dilation
 
 
-def find_fake_bottom(cutoff,data: xr.DataArray, dim: str = "range",first_threshold=-50 ) -> xr.DataArray:
+def find_false_bottom(cutoff,data: xr.DataArray, dim: str = "range",first_threshold=-50 ) -> xr.DataArray:
 
     """
-    Finds strong signals and removes everything else. Basically a theshold filter. 
+    Finds strong signals and removes everything else. 
 
     Parameters:
         data (xr.DataArray): The input DataArray.
@@ -20,34 +20,25 @@ def find_fake_bottom(cutoff,data: xr.DataArray, dim: str = "range",first_thresho
         xr.Dataset: The modified data with indices set to Nan if under bottom
     """
 
-    start = 300
-
-    for i in range(100,cutoff):
+    start = 100
+    for i in range(start,cutoff):
         if data.isel({dim: i}).max() > first_threshold: 
             start = i
             break
 
-    print("start: ", start)
 
   
     num_pings = data[0].sizes.get("ping_time",0)
     i, j = 0, 0
-    print("start: ", start)
+    #print("start: ", start)
     for k in range(3):
-        cutoff_range = cutoff
-        if k==0 or k==1:
-            cutoff_range=cutoff_range-300
         
         ping_time_data = data[k].isel(ping_time=0)
         threshold = ping_time_data.mean().values *0.7
-        # print("Threshold(",k,"):  ", threshold)
-        # print(ping_time_data.mean().values)
-        # print(ping_time_data.std().values)
-        # print(ping_time_data.max().values)
-        # print(ping_time_data.min().values)
-        for j in range(num_pings):# ping time     #data[k].sizes.get("ping_time",0)
+    
+        for j in range(num_pings):# ping time     
             last_bottom= 0 
-            for i in range(start, cutoff_range): # range
+            for i in range(start, cutoff): # range
                 if int(data[k].isel({dim: i})[{"ping_time": j}].sum()) > threshold:
                     data[k][{dim: slice(last_bottom, i -20), "ping_time": j}] = np.nan #Remove everthing over bottom
                     i+=20
