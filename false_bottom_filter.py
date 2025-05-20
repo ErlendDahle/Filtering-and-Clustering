@@ -162,8 +162,8 @@ def delete_clusters_with_high_nan_ratio(cluster_lines, cluster_ranges):
 
 def cutoff_mask_ranges(mask, cluster_ranges):
     for i in range(len(cluster_ranges)):
-        mask[cluster_ranges[i][0], :, :(cluster_ranges[i][1]-180)] = False
-        mask[cluster_ranges[i][0], :, (cluster_ranges[i][2]+100):] = False
+        mask[cluster_ranges[i][0], :, :(cluster_ranges[i][1]-200)] = False
+        mask[cluster_ranges[i][0], :, (cluster_ranges[i][2]+200):] = False
 
     if (cluster_ranges[:,0]==0).any()==False:
         mask[0, :, :] = False
@@ -194,7 +194,7 @@ def delete_high_mse_clusters(cluster_lines, cluster_ranges, Bathymetry):
 
 
 
-def remove_false_seabottom(data: xr.DataArray, mask_data, cluster_ranges ) -> xr.DataArray:
+def remove_false_bottom(data: xr.DataArray, mask_data, cluster_ranges ) -> xr.DataArray:
 
     mask = ~np.isnan(mask_data)
 
@@ -215,30 +215,5 @@ def remove_false_seabottom(data: xr.DataArray, mask_data, cluster_ranges ) -> xr
 
     data= xr.where(dilated_mask, np.nan, data)
 
-    return data
-
-
-def remove_false_bottom(data: xr.DataArray, mask_data, cluster_ranges, iterations) -> xr.DataArray:
-
-    mask = ~np.isnan(mask_data)
-
-    for i in range(len(cluster_ranges)):
-        mask[cluster_ranges[i][0], :, :(cluster_ranges[i][1])] = False
-        mask[cluster_ranges[i][0], :, (cluster_ranges[i][2]):] = False
-
-    if (cluster_ranges[:,0]==0).any()==False:
-        mask[0, :, :] = False
-    if (cluster_ranges[:,0]==1).any()==False:
-        mask[1, :, :] = False       
-    if (cluster_ranges[:,0]==2).any()==False:
-        mask[2, :, :] = False   
-
-
-    dilated_mask = binary_dilation(mask, iterations)
-
-    data[0,:,:]= xr.where(dilated_mask[0,:,:], np.nan, data[0,:,:])
-    data[1,:,:]= xr.where(dilated_mask[1,:,:], np.nan, data[1,:,:])
-    data[2,:,:]= xr.where(dilated_mask[2,:,:], np.nan, data[2,:,:])
-    
     return data
 
